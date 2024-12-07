@@ -1,6 +1,7 @@
 package ru.netology.repository;
 
 import org.springframework.stereotype.Repository;
+import ru.netology.exception.NotFoundException;
 import ru.netology.model.Post;
 
 import java.util.*;
@@ -13,13 +14,15 @@ public class PostRepositoryImpl implements PostRepository {
     private static long currentId = 0;
 
     public List<Post> all() {
-        var result = posts.entrySet().stream().map(i -> i.getValue()).collect(Collectors.toList());
+        var result = posts.entrySet().stream()
+                .filter(i -> !i.getValue().isRemoved())
+                .map(i -> i.getValue())
+                .collect(Collectors.toList());
         return result;
     }
 
     public Optional<Post> getById(long id) {
-        Optional<Post> result = Optional.ofNullable(posts.get(id));
-        return result;
+        return Optional.ofNullable(posts.get(id));
     }
 
     public Post save(Post post) {
@@ -30,7 +33,11 @@ public class PostRepositoryImpl implements PostRepository {
         }
         if (id != 0) {
             if (posts.containsKey(id)) {
-                posts.put(id, post);
+                if (posts.get(id).isRemoved()) {
+                    throw new NotFoundException();
+                } else {
+                    posts.put(id, post);
+                }
             } else {
                 post.setId(++currentId);
                 posts.put(currentId, post);
@@ -41,7 +48,12 @@ public class PostRepositoryImpl implements PostRepository {
 
     public void removeById(long id) {
         if (posts.containsKey(id)) {
-            posts.remove(id);
+            Post post = getById(id).get();
+            if (!post.isRemoved()) {
+                post.setRemoved(true);
+            } else {
+                throw new NotFoundException();
+            }
         }
     }
 }

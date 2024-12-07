@@ -13,4 +13,5 @@ public class WebConfig {
         bean.getMessageConverters().add(new GsonHttpMessageConverter());
         return bean;
     }
+
 }

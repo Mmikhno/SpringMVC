@@ -1,11 +1,9 @@
 package ru.netology.controller;
 
-import com.google.gson.Gson;
 import org.springframework.web.bind.annotation.*;
 import ru.netology.model.Post;
 import ru.netology.service.PostService;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
